@@ -1,0 +1,6 @@
+#include "circt/Support/Version.h"
+#include "circt/Support/VCSRevision.h"
+
+std::string circt::getCirctVersion() {
+  return "CIRCT version ${circt_VERSION} revision " CIRCT_REVISION;
+}

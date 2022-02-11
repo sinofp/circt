@@ -37,8 +37,21 @@ if( CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR )
 #-------------------------------------------------------------------------------
 # Project setup and globals
 #-------------------------------------------------------------------------------
+  if(NOT DEFINED CIRCT_VERSION_MAJOR)
+    set(CIRCT_VERSION_MAJOR 0)
+  endif()
+  if(NOT DEFINED CIRCT_VERSION_MINOR)
+    set(CIRCT_VERSION_MINOR 0)
+  endif()
+  if(NOT DEFINED CIRCT_VERSION_PATCH)
+    set(CIRCT_VERSION_PATCH 7)
+  endif()
+
   project(circt LANGUAGES CXX C)
-  
+  project(circt
+          VERSION ${CIRCT_VERSION_MAJOR}.${CIRCT_VERSION_MINOR}.${CIRCT_VERSION_PATCH}
+          LANGUAGES C CXX)
+
 #-------------------------------------------------------------------------------
 # Options and settings
 #-------------------------------------------------------------------------------
