@@ -139,10 +139,6 @@ include_directories(${MLIR_INCLUDE_DIRS})
 include_directories(${CIRCT_MAIN_INCLUDE_DIR})
 include_directories(${CIRCT_INCLUDE_DIR})
 
-execute_process(COMMAND git rev-parse HEAD
-                OUTPUT_VARIABLE COMMIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
-add_compile_definitions(CIRCT_VERSION="${COMMIT_HASH}")
-
 #-------------------------------------------------------------------------------
 # Verilator Configuration
 #-------------------------------------------------------------------------------
