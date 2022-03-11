@@ -61,6 +61,10 @@ static bool isVerilogUnaryOperator(Operation *op) {
   return false;
 }
 
+static bool isTemporaryDeclaration(Operation &op) {
+  return !(op.use_empty() || op.hasOneUse()) && hw::isCombinational(&op);
+}
+
 /// Sink an operation into the same block where it is used.  This will clone the
 /// operation so it can be sunk into multiple blocks. If there are no more uses
 /// in the current block, the op will be removed.
@@ -253,6 +257,14 @@ void PrettifyVerilogPass::processPostOrder(Block &body) {
       for (auto &region : op.getRegions())
         for (auto &regionBlock : region.getBlocks())
           processPostOrder(regionBlock);
+    }
+
+//    llvm::outs() << "\n";
+//    op.print(llvm::outs());
+//    llvm::outs() << "\n%%%%%%%%%" << isTemporaryDeclaration(op) << "\n";
+    if (isTemporaryDeclaration(op)) {
+      // Split it to multiple one usage op
+      op.setAttr("inline", mlir::BoolAttr::get(op.getContext(), true) );
     }
 
     // Sink and duplicate unary operators.

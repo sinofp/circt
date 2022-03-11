@@ -685,6 +685,12 @@ public:
   /// aggregate it together and print a pretty comment specifying where the
   /// operations came from.  In any case, print a newline.
   void emitLocationInfoAndNewLine(const SmallPtrSet<Operation *, 8> &ops) {
+    //    llvm::outs() << "new line:\n";
+    //    llvm::for_each(ops, [](Operation * op) {
+    //      op->print(llvm::outs());
+    //      llvm::outs() << "\t";
+    //    });
+    //    llvm::outs() << "\n";
     auto locInfo = getLocationInfoAsString(ops);
     if (!locInfo.empty())
       os << "\t// " << locInfo;
@@ -1765,7 +1771,23 @@ SubExprInfo ExprEmitter::emitSubExpr(Value exp,
   if (shouldEmitInlineExpr && parenthesizeIfLooserThan != ForceEmitMultiUse &&
       emitter.outOfLineExpressions.count(op))
     shouldEmitInlineExpr = false;
+  if (op && op->hasAttrOfType<mlir::BoolAttr>("inline")) {
+    shouldEmitInlineExpr = op->getAttrOfType<mlir::BoolAttr>("inline").getValue();
+  }
+//
+//  if (auto attr = op->getAttr("inline").dyn_cast_or_null<mlir::BoolAttr>())
+//    shouldEmitInlineExpr = attr.getValue();
+//  else
+//    llvm::outs() << "no attr";
+//  shouldEmitInlineExpr = op != nullptr;
 
+//  exp.print(llvm::outs());
+//  llvm::outs() << "\t" << (shouldEmitInlineExpr ? "can" : "can't")
+//               << " inline, because";
+//  llvm::outs() << "\top: " << (op != nullptr);
+//  llvm::outs() << "\tshould: " << shouldEmitInlineExpr;
+//  llvm::outs() << "\tpar: " << (parenthesizeIfLooserThan != ForceEmitMultiUse);
+//  llvm::outs() << "\tcnt: " << emitter.outOfLineExpressions.count(op) << '\n';
   // If this is a non-expr or shouldn't be done inline, just refer to its name.
   if (!shouldEmitInlineExpr) {
     // All wires are declared as unsigned, so if the client needed it signed,
@@ -1788,7 +1810,13 @@ SubExprInfo ExprEmitter::emitSubExpr(Value exp,
 
   // Okay, this is an expression we should emit inline.  Do this through our
   // visitor.
+//  llvm::outs() << ">>>enter dispatch: ";
+//  exp.getDefiningOp()->print(llvm::outs());
+//  llvm::outs() << "\n";
   auto expInfo = dispatchCombinationalVisitor(exp.getDefiningOp());
+//  llvm::outs() << "<<<exit dispatch: ";
+//  exp.getDefiningOp()->print(llvm::outs());
+//  llvm::outs() << "\n";
 
   // Check cases where we have to insert things before the expression now that
   // we know things about it.
@@ -2746,6 +2774,8 @@ LogicalResult StmtEmitter::visitStmt(OutputOp op) {
 
   SmallPtrSet<Operation *, 8> ops;
   HWModuleOp parent = op->getParentOfType<HWModuleOp>();
+//  parent.print(llvm::outs());
+//  llvm::outs() << "\n\n\n";
 
   size_t operandIndex = 0;
   for (PortInfo port : parent.getPorts().outputs) {
@@ -2764,8 +2794,20 @@ LogicalResult StmtEmitter::visitStmt(OutputOp op) {
     if (isZeroBitType(port.type))
       os << "// Zero width: ";
     os << "assign " << getPortVerilogName(parent, port) << " = ";
+//    llvm::outs() << "===Op and Operand for " << getPortVerilogName(parent, port)
+//                 << "\n";
+//    op.print(llvm::outs());
+//    llvm::outs() << "\n";
+//    operand.print(llvm::outs());
+//    llvm::outs() << "\n===\n\n";
     emitExpression(operand, ops);
     os << ';';
+//    llvm::outs() << "emitted:\n";
+//    llvm::for_each(ops, [](Operation *op) {
+//      op->print(llvm::outs());
+//      llvm::outs() << "\n";
+//    });
+//    llvm::outs() << "\n";
     emitLocationInfoAndNewLine(ops);
     ++operandIndex;
     ++numStatementsEmitted;
@@ -3596,6 +3638,8 @@ isExpressionEmittedInlineIntoProceduralDeclaration(Operation *op,
 /// return false. If the operation *is* a constant, also emit the initializer
 /// and semicolon, e.g. `localparam K = 1'h0`, and return true.
 bool StmtEmitter::emitDeclarationForTemporary(Operation *op) {
+  if (op->hasAttrOfType<mlir::BoolAttr>("inline") && op->getAttrOfType<mlir::BoolAttr>("inline"))
+    return true;
   StringRef declWord = getVerilogDeclWord(op, state.options);
 
   os.indent(blockDeclarationIndentLevel) << declWord;
