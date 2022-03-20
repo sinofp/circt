@@ -16,6 +16,14 @@
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/Dialect.h"
 
+namespace circt {
+namespace comb {
+
+void registerCombPasses();
+
+} // namespace comb
+} // namespace circt
+
 // Pull in the Dialect definition.
 #include "circt/Dialect/Comb/CombDialect.h.inc"
 

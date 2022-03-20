@@ -208,6 +208,16 @@ bool XorOp::isBinaryNot() {
   return false;
 }
 
+LogicalResult MinimizeOp::verify() {
+  if (failed(verifyUTBinOp(*this)))
+    return failure();
+  if (getAttributeNames().empty()) {
+    emitOpError("Truth table undefined.");
+    return failure();
+  }
+  return success();
+}
+
 //===----------------------------------------------------------------------===//
 // ConcatOp
 //===----------------------------------------------------------------------===//

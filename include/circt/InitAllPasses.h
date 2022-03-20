@@ -48,6 +48,7 @@ inline void registerAllPasses() {
   sv::registerPasses();
   handshake::registerPasses();
   hw::registerPasses();
+  comb::registerCombPasses();
 }
 
 } // namespace circt

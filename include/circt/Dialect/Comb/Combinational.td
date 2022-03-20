@@ -85,6 +85,28 @@ def XorOp : UTVariadicOp<"xor", [Commutative]> {
   }];
 }
 
+def MinimizeOp : CombOp<"minimize", [NoSideEffect]> {
+  let summary = "Minimize boolean expressions by truth table";
+  let description = [{
+    Use Quine–McCluskey's algorithm to minimize boolean functions.
+    Unlike Chisel, there are no default value.
+    In the future it will use ESPRESSO.
+  }];
+
+  let arguments = (ins Variadic<HWIntegerType>:$inputs, StrArrayAttr:$truthTable);
+  let results = (outs Variadic<HWIntegerType>:$result);
+
+  let hasVerifier = 1;
+
+  let assemblyFormat = "$inputs attr-dict `:` functional-type(operands, results)";
+}
+
+def Minimization: Pass<"minimization", "mlir::ModuleOp"> {
+  let summary = "Minimize comb.minimize";
+  let constructor = "circt::comb::createMinimizationPass()";
+  let dependentDialects = ["circt::comb::CombDialect"];
+}
+
 //===----------------------------------------------------------------------===//
 // Comparisons
 //===----------------------------------------------------------------------===//
