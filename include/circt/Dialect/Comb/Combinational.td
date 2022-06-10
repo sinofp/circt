@@ -16,6 +16,7 @@
 
 include "mlir/Interfaces/InferTypeOpInterface.td"
 include "mlir/IR/EnumAttr.td"
+include "mlir/Pass/PassBase.td"
 
 // Base class for binary operators.
 class BinOp<string mnemonic, list<Trait> traits = []> :
@@ -85,6 +86,7 @@ def XorOp : UTVariadicOp<"xor", [Commutative]> {
   }];
 }
 
+// TODO change summary/desc
 def MinimizeOp : CombOp<"minimize", [NoSideEffect]> {
   let summary = "Minimize boolean expressions by truth table";
   let description = [{
@@ -93,7 +95,7 @@ def MinimizeOp : CombOp<"minimize", [NoSideEffect]> {
     In the future it will use ESPRESSO.
   }];
 
-  let arguments = (ins Variadic<HWIntegerType>:$inputs, StrArrayAttr:$truthTable);
+  let arguments = (ins Variadic<HWIntegerType>:$inputs, StrArrayAttr:$table);
   let results = (outs Variadic<HWIntegerType>:$result);
 
   let hasVerifier = 1;
