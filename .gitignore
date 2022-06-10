@@ -11,6 +11,7 @@ compile_commands.json
 .DS_Store
 __pycache__
 lit.site.cfg.py
+cmake-build-debug/
 
 # Pip artifacts
 /lib/Bindings/Python/build
